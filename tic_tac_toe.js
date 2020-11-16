@@ -4,6 +4,7 @@
 
 var mySound = document.getElementById("myAudio"); //ukelele sound effect
 var mySound1 = document.getElementById("myAudio1"); //ding sound effect
+let counter = 1
 
 //play ukelele sound effect
 function playAudio()
@@ -39,7 +40,6 @@ let gameActive = true;
 let currentPlayer = "X";
 //setting the grid spots on the board to empty
 let gameState = ["", "", "", "", "", "", "", "", ""];
-let modState = [false, false, false, false, false, false, false, false, false];
 //winning message
 const winningMessage = () => `Player ${currentPlayer} has won the game, lets play again!`;
 //draw message
@@ -53,15 +53,13 @@ const currentPlayerTurn = () => `It is player ${currentPlayer}'s turn`;
 //function to handle the cell selected for the current player turn
 function handleCellPlayed(selectedCell, gameBoardIndex)
 {
-    if (modState[gameBoardIndex] == false){
     gameState[gameBoardIndex] = currentPlayer;
     selectedCell.innerHTML = currentPlayer;
     console.log("Game state location: " + gameState);
     console.log("Current player turn: " + currentPlayer);
     console.log("Index in array: " + gameBoardIndex);
-    modState[gameBoardIndex] = true;
-    }
 }
+
 
 //-------------------------------------------------------------------------------------------------------------------------
 
@@ -151,23 +149,19 @@ function handleCellClick(event)
     const gameBoardIndex = parseInt(selectedCell.getAttribute('data-cell-index'));
 
     //checks if board isn't empty and not active
-    if (gameState[gameBoardIndex] != "" || !gameActive || modState[gameBoardIndex] == true)
+    if (gameState[gameBoardIndex] !== "" || !gameActive)
     {
         return;
     }
-    
-    
-    if (modState[gameBoardIndex] == false){
+
     handleCellPlayed(selectedCell, gameBoardIndex);
-    var msg = new SpeechSynthesisUtterance();
+    handleResultValidation();
+     var msg = new SpeechSynthesisUtterance();
     var msgTxt = "";
     msgTxt = (currentPlayer + " selected cell " + (gameBoardIndex+1));
     msg.text = msgTxt;
     speechSynthesis.speak(msg);
     msgTxt = "";
-    handleResultValidation();     
-    }
-   
 }
 
 //-------------------------------------------------------------------------------------------------------------------------
@@ -197,8 +191,7 @@ function handleRestartGame()
 {
     gameActive = true;
     currentPlayer = "X";
-    gameState = ["", "", "", "", "", "", "", "", ""];
-   modState = [false, false, false, false, false, false, false, false, false];
+    gameState = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
     statusDisplay.innerHTML = currentPlayerTurn();
     document.querySelectorAll('.cell').forEach(cell => cell.innerHTML = "");
     pauseAudio();
@@ -208,6 +201,59 @@ document.querySelectorAll('.cell').forEach(cell => cell.addEventListener('click'
 document.querySelector('.game--restart').addEventListener('click', handleRestartGame);
 document.querySelector('.game--readBoard').addEventListener('onclick', readBoard);
 
+//-------------------------------------------------------------------------------------------------------------------------
+function increaseFontSize()
+{
+    if (counter < 8) {
+        counter ++;
+    } else if (counter >= 8) {
+        return;
+    }
+    if (counter == 1) {
+        document.getElementById('webText').style.fontSize='16px'
+    } else if (counter == 2) {
+        document.getElementById('webText').style.fontSize='22px'
+    } else if (counter == 3) {
+        document.getElementById('webText').style.fontSize='28px'
+    } else if (counter == 4) {
+        document.getElementById('webText').style.fontSize='35px'
+    } else if (counter == 5) {
+        document.getElementById('webText').style.fontSize='42px'
+    } else if (counter == 6) {
+        document.getElementById('webText').style.fontSize='50px'
+    } else if (counter == 7) {
+        document.getElementById('webText').style.fontSize='58px'
+    } else if (counter == 8) {
+        document.getElementById('webText').style.fontSize='65px'
+    }
+}
+//-------------------------------------------------------------------------------------------------------------------------
+function decreaseFontSize()
+{
+    if (counter >= 2) {
+        counter --;
+    } else if (counter < 2) {
+        return;
+    }
+    if (counter == 1) {
+        document.getElementById('webText').style.fontSize='16px'
+    } else if (counter == 2) {
+        document.getElementById('webText').style.fontSize='22px'
+    } else if (counter == 3) {
+        document.getElementById('webText').style.fontSize='28px'
+    } else if (counter == 4) {
+        document.getElementById('webText').style.fontSize='35px'
+    } else if (counter == 5) {
+        document.getElementById('webText').style.fontSize='42px'
+    } else if (counter == 6) {
+        document.getElementById('webText').style.fontSize='50px'
+    } else if (counter == 7) {
+        document.getElementById('webText').style.fontSize='58px'
+    } else if (counter == 8) {
+        document.getElementById('webText').style.fontSize='65px'
+    }
+
+}
 //-------------------------------------------------------------------------------------------------------------------------
 
 //voice recognition for program
@@ -247,9 +293,9 @@ function speechRecognition()
         output.innerHTML = "<b>Text:</b> " + transcript + "<br/> <b>Confidence:</b> " + confidence * 100 + "%";
         output.classList.remove("hide");
         console.log(transcript);
-          
+
        if (transcript.toLowerCase() == 'read'){	 //if a player asks for the board's state to be read out loud
-          readBoard();	
+          readBoard();
         }
         //locate box 1 on the map and place the current player symbol in it
         if (transcript.toLowerCase() == '1')
@@ -263,16 +309,9 @@ function speechRecognition()
             //test voice recognition
             console.log("Got command: " + transcript);
             //(cell from html, game state [board location])
-             if (modState[boardIndex] == false){
-                 handleCellPlayed(htmlID, boardIndex);
-                var msg = new SpeechSynthesisUtterance();
-                var msgTxt = "";
-                msgTxt = (currentPlayer + " selected cell " + (boardIndex+1));
-                msg.text = msgTxt;
-                speechSynthesis.speak(msg);
-                msgTxt = "";
-                handleResultValidation();     
-                    } 
+            handleCellPlayed(htmlID, boardIndex);
+            //check if player has won game
+            handleResultValidation();
         }
 
         //locate box 2 on the map and place the current player symbol in it
@@ -287,16 +326,9 @@ function speechRecognition()
             //test voice recognition
             console.log("Got command: " + transcript);
             //(cell from html, game state [board location])
-             if (modState[boardIndex] == false){
-                 handleCellPlayed(htmlID, boardIndex);
-                var msg = new SpeechSynthesisUtterance();
-                var msgTxt = "";
-                msgTxt = (currentPlayer + " selected cell " + (boardIndex+1));
-                msg.text = msgTxt;
-                speechSynthesis.speak(msg);
-                msgTxt = "";
-                handleResultValidation();     
-                } 
+            handleCellPlayed(htmlID, boardIndex);
+            //check if player has won game
+            handleResultValidation();
         }
 
         //locate box 3 on the map and place the current player symbol in it
@@ -311,16 +343,9 @@ function speechRecognition()
             //test voice recognition
             console.log("Got command: " + transcript);
             //(cell from html, game state [board location])
-            if (modState[boardIndex] == false){
-                 handleCellPlayed(htmlID, boardIndex);
-                var msg = new SpeechSynthesisUtterance();
-                var msgTxt = "";
-                msgTxt = (currentPlayer + " selected cell " + (boardIndex+1));
-                msg.text = msgTxt;
-                speechSynthesis.speak(msg);
-                msgTxt = "";
-                handleResultValidation();     
-                } 
+            handleCellPlayed(htmlID, boardIndex);
+            //check if player has won game
+            handleResultValidation();
         }
 
         //locate box 4 on the map and place the current player symbol in it
@@ -335,16 +360,9 @@ function speechRecognition()
             //test voice recognition
             console.log("Got command: " + transcript);
             //(cell from html, game state [board location])
-             if (modState[boardIndex] == false){
-                 handleCellPlayed(htmlID, boardIndex);
-                var msg = new SpeechSynthesisUtterance();
-                var msgTxt = "";
-                msgTxt = (currentPlayer + " selected cell " + (boardIndex+1));
-                msg.text = msgTxt;
-                speechSynthesis.speak(msg);
-                msgTxt = "";
-                handleResultValidation();     
-                } 
+            handleCellPlayed(htmlID, boardIndex);
+            //check if player has won game
+            handleResultValidation();
         }
 
         //locate box 5 on the map and place the current player symbol in it
@@ -359,16 +377,9 @@ function speechRecognition()
             //test voice recognition
             console.log("Got command: " + transcript);
             //(cell from html, game state [board location])
-             if (modState[boardIndex] == false){
-                 handleCellPlayed(htmlID, boardIndex);
-                var msg = new SpeechSynthesisUtterance();
-                var msgTxt = "";
-                msgTxt = (currentPlayer + " selected cell " + (boardIndex+1));
-                msg.text = msgTxt;
-                speechSynthesis.speak(msg);
-                msgTxt = "";
-                handleResultValidation();     
-                } 
+            handleCellPlayed(htmlID, boardIndex);
+            //check if player has won game
+            handleResultValidation();
         }
 
         //locate box 6 on the map and place the current player symbol in it
@@ -383,16 +394,9 @@ function speechRecognition()
             //test voice recognition
             console.log("Got command: " + transcript);
             //(cell from html, game state [board location])
-             if (modState[boardIndex] == false){
-                 handleCellPlayed(htmlID, boardIndex);
-                var msg = new SpeechSynthesisUtterance();
-                var msgTxt = "";
-                msgTxt = (currentPlayer + " selected cell " + (boardIndex+1));
-                msg.text = msgTxt;
-                speechSynthesis.speak(msg);
-                msgTxt = "";
-                handleResultValidation();     
-                } 
+            handleCellPlayed(htmlID, boardIndex);
+            //check if player has won game
+            handleResultValidation();
         }
 
         //locate box 7 on the map and place the current player symbol in it
@@ -407,16 +411,9 @@ function speechRecognition()
             //test voice recognition
             console.log("Got command: " + transcript);
             //(cell from html, game state [board location])
-             if (modState[boardIndex] == false){
-                 handleCellPlayed(htmlID, boardIndex);
-                var msg = new SpeechSynthesisUtterance();
-                var msgTxt = "";
-                msgTxt = (currentPlayer + " selected cell " + (boardIndex+1));
-                msg.text = msgTxt;
-                speechSynthesis.speak(msg);
-                msgTxt = "";
-                handleResultValidation();     
-                } 
+            handleCellPlayed(htmlID, boardIndex);
+            //check if player has won game
+            handleResultValidation();
         }
 
         //locate box 8 on the map and place the current player symbol in it
@@ -431,16 +428,9 @@ function speechRecognition()
             //test voice recognition
             console.log("Got command: " + transcript);
             //(cell from html, game state [board location])
-            if (modState[boardIndex] == false){
-             handleCellPlayed(htmlID, boardIndex);
-            var msg = new SpeechSynthesisUtterance();
-            var msgTxt = "";
-            msgTxt = (currentPlayer + " selected cell " + (boardIndex+1));
-            msg.text = msgTxt;
-            speechSynthesis.speak(msg);
-            msgTxt = "";
-            handleResultValidation();     
-            } 
+            handleCellPlayed(htmlID, boardIndex);
+            //check if player has won game
+            handleResultValidation();
         }
 
         //locate box 9 on the map and place the current player symbol in it
@@ -455,16 +445,9 @@ function speechRecognition()
             //test voice recognition
             console.log("Got command: " + transcript);
             //(cell from html, game state [board location])
-            if (modState[boardIndex] == false){
-                 handleCellPlayed(htmlID, boardIndex);
-                var msg = new SpeechSynthesisUtterance();
-                var msgTxt = "";
-                msgTxt = (currentPlayer + " selected cell " + (boardIndex+1));
-                msg.text = msgTxt;
-                speechSynthesis.speak(msg);
-                msgTxt = "";
-                handleResultValidation();     
-                } 
+            handleCellPlayed(htmlID, boardIndex);
+            //check if player has won game
+            handleResultValidation();
         }
     };
 
@@ -493,16 +476,9 @@ function handleKeyboard(keyEvent)
     //cell index from html
     var htmlIndex = document.getElementById("0");
     //(cell from html, game state [board location])
-    if (modState[boardIndex] == false){
-     handleCellPlayed(htmlID, boardIndex);
-    var msg = new SpeechSynthesisUtterance();
-    var msgTxt = "";
-    msgTxt = (currentPlayer + " selected cell " + (boardIndex+1));
-    msg.text = msgTxt;
-    speechSynthesis.speak(msg);
-    msgTxt = "";
-    handleResultValidation();     
-    }   
+    handleCellPlayed(htmlID, boardIndex);
+    //check if player has won game
+    handleResultValidation();
   }
   else if (x == 50)
   {
@@ -513,19 +489,9 @@ function handleKeyboard(keyEvent)
     //cell index from html
     var htmlIndex = document.getElementById("1");
     //(cell from html, game state [board location])
+    handleCellPlayed(htmlID, boardIndex);
     //check if player has won game
-   
-   if (modState[boardIndex] == false){
-     handleCellPlayed(htmlID, boardIndex);
-    var msg = new SpeechSynthesisUtterance();
-    var msgTxt = "";
-    msgTxt = (currentPlayer + " selected cell " + (boardIndex+1));
-    msg.text = msgTxt;
-    speechSynthesis.speak(msg);
-    msgTxt = "";
-    handleResultValidation();     
-    }   
-      
+    handleResultValidation();
   }
   else if (x == 51)
   {
@@ -536,16 +502,9 @@ function handleKeyboard(keyEvent)
     //cell index from html
     var htmlIndex = document.getElementById("2");
     //(cell from html, game state [board location])
-    if (modState[boardIndex] == false){
-     handleCellPlayed(htmlID, boardIndex);
-    var msg = new SpeechSynthesisUtterance();
-    var msgTxt = "";
-    msgTxt = (currentPlayer + " selected cell " + (boardIndex+1));
-    msg.text = msgTxt;
-    speechSynthesis.speak(msg);
-    msgTxt = "";
-    handleResultValidation();     
-    }   
+    handleCellPlayed(htmlID, boardIndex);
+    //check if player has won game
+    handleResultValidation();
   }
   else if (x == 52)
   {
@@ -556,16 +515,9 @@ function handleKeyboard(keyEvent)
     //cell index from html
     var htmlIndex = document.getElementById("3");
     //(cell from html, game state [board location])
-    if (modState[boardIndex] == false){
-     handleCellPlayed(htmlID, boardIndex);
-    var msg = new SpeechSynthesisUtterance();
-    var msgTxt = "";
-    msgTxt = (currentPlayer + " selected cell " + (boardIndex+1));
-    msg.text = msgTxt;
-    speechSynthesis.speak(msg);
-    msgTxt = "";
-    handleResultValidation();     
-    }   
+    handleCellPlayed(htmlID, boardIndex);
+    //check if player has won game
+    handleResultValidation();
   }
   else if (x == 53)
   {
@@ -576,16 +528,9 @@ function handleKeyboard(keyEvent)
     //cell index from html
     var htmlIndex = document.getElementById("4");
     //(cell from html, game state [board location])
-    if (modState[boardIndex] == false){
-     handleCellPlayed(htmlID, boardIndex);
-    var msg = new SpeechSynthesisUtterance();
-    var msgTxt = "";
-    msgTxt = (currentPlayer + " selected cell " + (boardIndex+1));
-    msg.text = msgTxt;
-    speechSynthesis.speak(msg);
-    msgTxt = "";
-    handleResultValidation();     
-    }   
+    handleCellPlayed(htmlID, boardIndex);
+    //check if player has won game
+    handleResultValidation();
   }
   else if (x == 54)
   {
@@ -609,16 +554,9 @@ function handleKeyboard(keyEvent)
     //cell index from html
     var htmlIndex = document.getElementById("6");
     //(cell from html, game state [board location])
-     if (modState[boardIndex] == false){
-     handleCellPlayed(htmlID, boardIndex);
-    var msg = new SpeechSynthesisUtterance();
-    var msgTxt = "";
-    msgTxt = (currentPlayer + " selected cell " + (boardIndex+1));
-    msg.text = msgTxt;
-    speechSynthesis.speak(msg);
-    msgTxt = "";
-    handleResultValidation();     
-    }   
+    handleCellPlayed(htmlID, boardIndex);
+    //check if player has won game
+    handleResultValidation();
   }
   else if (x == 56)
   {
@@ -629,17 +567,9 @@ function handleKeyboard(keyEvent)
     //cell index from html
     var htmlIndex = document.getElementById("7");
     //(cell from html, game state [board location])
+    handleCellPlayed(htmlID, boardIndex);
     //check if player has won game
-   if (modState[boardIndex] == false){
-     handleCellPlayed(htmlID, boardIndex);
-    var msg = new SpeechSynthesisUtterance();
-    var msgTxt = "";
-    msgTxt = (currentPlayer + " selected cell " + (boardIndex+1));
-    msg.text = msgTxt;
-    speechSynthesis.speak(msg);
-    msgTxt = "";
-    handleResultValidation();     
-    }   
+    handleResultValidation();
   }
   else if (x == 57)
   {
@@ -650,25 +580,18 @@ function handleKeyboard(keyEvent)
     //cell index from html
     var htmlIndex = document.getElementById("8");
     //(cell from html, game state [board location])
-    if (modState[boardIndex] == false){
-     handleCellPlayed(htmlID, boardIndex);
-    var msg = new SpeechSynthesisUtterance();
-    var msgTxt = "";
-    msgTxt = (currentPlayer + " selected cell " + (boardIndex+1));
-    msg.text = msgTxt;
-    speechSynthesis.speak(msg);
-    msgTxt = "";
-    handleResultValidation();     
-    }   
+    handleCellPlayed(htmlID, boardIndex);
+    //check if player has won game
+    handleResultValidation();
   }
   else {
     alert("Not a valid key try again");
   }
 
-//  const clickedCellIndex = parseInt(clickedCell.getAttribute('data-cell-index'));
+  // const clickedCellIndex = parseInt(clickedCell.getAttribute('data-cell-index'));
 
   //if cell has been played or game is paused, ignore
-  if (gameState[clickedCell-1] !== "" || !gameActive)
+  if (gameState[clickedCellIndex] !== "" || !gameActive)
   {
       return;
   }
@@ -677,5 +600,16 @@ function handleKeyboard(keyEvent)
   //Might have to change clickedCell!!!!
   handleCellPlayed(clickedCell, clickedCellIndex);
   handleResultValidation();
-  //End of Rj's contribution
+}
+
+function changeCSS(cssFile, cssLinkIndex) {
+
+    var oldlink = document.getElementsByTagName("link").item(cssLinkIndex);
+
+    var newlink = document.createElement("link");
+    newlink.setAttribute("rel", "stylesheet");
+    newlink.setAttribute("type", "text/css");
+    newlink.setAttribute("href", cssFile);
+
+    document.getElementsByTagName("head").item(0).replaceChild(newlink, oldlink);
 }
